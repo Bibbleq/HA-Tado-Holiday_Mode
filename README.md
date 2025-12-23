@@ -103,7 +103,7 @@ Keep specific rooms warm during weekend mornings.
 - Enable the override switch on Friday evening
 - On Saturday and Sunday between 7 AM and 11 AM, if someone is home, bedrooms stay at 22°C
 - Outside this time window, normal Tado schedules apply
-- Every 15 minutes, temperatures are re-checked and re-applied
+- Every 30 minutes, temperatures are re-checked and re-applied
 
 ### Example 3: Work-From-Home Override
 
@@ -126,7 +126,7 @@ Maintain comfort in your home office during work hours.
    - People are present at home
    - Current time is within the optional time window (if enabled)
 3. **Temperature Application**: Sets all selected Tado zones to the comfort temperature
-4. **Periodic Re-Check**: Every X minutes (configurable), the automation:
+4. **Periodic Re-Check**: Every 30 minutes, the automation:
    - Re-evaluates all conditions
    - Re-applies the comfort temperature if conditions are still met
    - This ensures temperatures stay set even if Tado tries to revert to its schedule
@@ -139,7 +139,7 @@ Maintain comfort in your home office during work hours.
 
 ### Temperatures keep reverting to schedule
 
-- **Check interval too long**: Reduce the check interval (e.g., from 30 to 15 minutes)
+- **Fixed 30-minute interval**: The blueprint re-checks every 30 minutes. Temperatures may temporarily revert between checks. To check more frequently (e.g., every 15 minutes), fork the blueprint and modify the `time_pattern` trigger.
 - **Tado conflict mode**: Some Tado devices have a "conflict resolution" setting. Ensure it's compatible with external controls
 
 ### Override not activating
