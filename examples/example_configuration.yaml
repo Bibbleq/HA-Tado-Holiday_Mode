@@ -1,7 +1,11 @@
 # Example Configuration for Tado Holiday Override Mode Blueprint
-# 
+#
 # This file shows example configurations for different use cases.
 # Copy and adjust these examples when creating automations from the blueprint.
+#
+# NOTE: The blueprint uses a fixed 30-minute check interval.
+#       Temperature settings are re-checked and re-applied every 30 minutes.
+#       To use a different interval, fork the blueprint and modify the time_pattern trigger.
 
 # ============================================================================
 # Example 1: Basic Holiday Override
@@ -26,7 +30,6 @@ use_blueprint:
       - climate.tado_dining_room
       - climate.tado_hallway
     comfort_temperature: 21
-    check_interval: 30
     use_time_window: false
 
 # ============================================================================
@@ -50,7 +53,6 @@ use_blueprint:
       - climate.tado_bedroom_2
       - climate.tado_bathroom
     comfort_temperature: 22
-    check_interval: 15
     use_time_window: true
     start_time: "07:00:00"
     end_time: "11:00:00"
@@ -74,7 +76,6 @@ use_blueprint:
     tado_zones:
       - climate.tado_office
     comfort_temperature: 20.5
-    check_interval: 45
     use_time_window: true
     start_time: "09:00:00"
     end_time: "17:00:00"
@@ -99,7 +100,6 @@ use_blueprint:
       - climate.tado_guest_bedroom
       - climate.tado_guest_bathroom
     comfort_temperature: 21.5
-    check_interval: 30
     use_time_window: false
 
 # ============================================================================
@@ -121,7 +121,6 @@ use_blueprint:
     tado_zones:
       - climate.tado_living_room
     comfort_temperature: 22.5
-    check_interval: 20
     use_time_window: true
     start_time: "18:00:00"
     end_time: "23:00:00"
@@ -147,7 +146,6 @@ use_blueprint:
       - climate.tado_hallway
       - climate.tado_bathroom_main
     comfort_temperature: 21
-    check_interval: 25
     use_time_window: false
 
 # ============================================================================

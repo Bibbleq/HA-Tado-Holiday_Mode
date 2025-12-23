@@ -43,7 +43,6 @@ Tado Climate Zones:
   - climate.tado_living_room
   - climate.tado_bedroom
 Comfort Temperature: 21
-Check Interval: 30
 ```
 
 5. Click **Save** and give it a name like "Holiday Override"
@@ -70,7 +69,6 @@ Check Interval: 30
 ### Holiday Mode (Always Active)
 ```yaml
 Use Time Window: false
-Check Interval: 30 minutes
 Comfort Temperature: 21°C
 ```
 Turn on when guests arrive, turn off when they leave.
@@ -80,7 +78,6 @@ Turn on when guests arrive, turn off when they leave.
 Use Time Window: true
 Start Time: 07:00:00
 End Time: 11:00:00
-Check Interval: 15 minutes
 Comfort Temperature: 22°C
 ```
 Turn on Friday evening, leave it on all weekend!
@@ -90,14 +87,14 @@ Turn on Friday evening, leave it on all weekend!
 Use Time Window: true
 Start Time: 09:00:00
 End Time: 17:00:00
-Check Interval: 45 minutes
 Comfort Temperature: 20.5°C
 ```
 Enable on WFH days, disable on office days.
 
 ## Tips
 
-- **Check Interval**: Shorter intervals (15 min) = more responsive, but more API calls to Tado
+**Note:** The blueprint automatically re-checks and re-applies temperatures every 30 minutes. To customize this interval, you'll need to fork the blueprint and modify the time_pattern trigger.
+
 - **Multiple Zones**: You can select as many Tado zones as you want
 - **Multiple Automations**: Create separate automations for different areas with different temperatures
 - **Dashboard Control**: Add the override switch to your dashboard for easy access!
@@ -128,7 +125,7 @@ entities:
 Once comfortable with basic operation:
 1. Create multiple automations for different scenarios
 2. Add automation controls to your dashboard
-3. Adjust check intervals based on your needs
+3. Adjust time windows based on your needs
 4. Experiment with time windows for scheduled overrides
 
 Enjoy your flexible Tado heating control! 🔥

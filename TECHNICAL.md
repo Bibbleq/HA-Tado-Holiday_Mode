@@ -13,8 +13,8 @@ This document explains the technical implementation and logic flow of the Tado H
 │  • People Presence Sensor (person/group/binary_sensor)           │
 │  • Tado Climate Zones (climate entities)                         │
 │  • Comfort Temperature (°C)                                       │
-│  • Check Interval (minutes)                                       │
 │  • Optional: Time Window (start/end times)                        │
+│  • Note: 30-minute check interval is fixed in the blueprint      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -176,13 +176,13 @@ These variables are set once at automation start and used throughout the action 
 
 ```yaml
 platform: time_pattern
-minutes: "/{{ check_interval }}"
+minutes: "/30"
 ```
 
-This creates a repeating trigger that fires every X minutes:
-- `check_interval: 30` → Fires at :00, :30
-- `check_interval: 15` → Fires at :00, :15, :30, :45
-- `check_interval: 45` → Fires at :00, :45
+This creates a repeating trigger that fires every 30 minutes:
+- Fires at :00 and :30 of every hour
+- Fixed interval - to change, fork the blueprint and modify the trigger
+- Examples of other valid intervals: "/15" (every 15 min), "/60" (every hour)
 
 ## Climate Service Calls
 

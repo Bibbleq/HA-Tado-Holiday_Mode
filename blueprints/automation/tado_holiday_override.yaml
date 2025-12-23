@@ -3,9 +3,10 @@ blueprint:
   description: >
     Temporarily overlay Tado heating schedules without editing them.
     When enabled via a boolean switch and people are present, this automation
-    sets selected rooms to comfort temperatures. It re-checks at a fixed interval
-    (default: 30 minutes) and re-applies the setpoints if Tado has reverted them.
+    sets selected rooms to comfort temperatures. It re-checks every 30 minutes
+    and re-applies the setpoints if Tado has reverted them.
     When the override is turned off or the time window ends, normal Tado scheduling resumes.
+    Note: The 30-minute check interval is fixed. To use a different interval, fork this blueprint.
   domain: automation
   source_url: https://github.com/Bibbleq/HA-Tado-Holiday_Mode
   input:
@@ -25,19 +26,6 @@ blueprint:
             - group
             - binary_sensor
             - zone
-    check_interval:
-      name: Check Interval (informational)
-      description: >
-        Automation runs every 30 minutes to re-check and re-apply temperatures.
-        To use a different interval, fork this blueprint and modify the time_pattern trigger.
-      default: 30
-      selector:
-        number:
-          min: 5
-          max: 120
-          step: 5
-          unit_of_measurement: "minutes"
-          mode: box
     start_time:
       name: Start Time (Optional)
       description: Time when the override can start being active (leave empty for always active)

@@ -72,11 +72,13 @@ Tado's internal scheduling can override external temperature commands. The bluep
 
 ### Solutions
 
-#### 1. Decrease Check Interval
-```yaml
-Check Interval: 15 minutes  # Instead of 30
-```
-More frequent checks = less time for Tado to stay at schedule temp.
+#### 1. Understand the Fixed Interval
+The blueprint uses a fixed 30-minute check interval. Temperatures may revert between checks, but will be re-applied at the next 30-minute mark.
+
+If you need more frequent checks (e.g., every 15 minutes), you can:
+1. Fork the blueprint repository
+2. Edit the `time_pattern` trigger from `minutes: "/30"` to `minutes: "/15"`
+3. Import your forked version
 
 #### 2. Check Tado Smart Schedule Settings
 In the Tado app:
@@ -345,10 +347,10 @@ Home Assistant slow or unresponsive after enabling override.
 #### Interval Too Short
 ```yaml
 # Minimum recommended:
-Check Interval: 10 minutes
+30-minute check interval (fixed)
 
 # For many zones:
-Check Interval: 30 minutes
+30-minute check interval (fixed)
 ```
 
 #### Tado API Rate Limiting

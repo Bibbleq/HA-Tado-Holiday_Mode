@@ -6,7 +6,7 @@ A Home Assistant Blueprint that provides a "Holiday Override" mode for Tado heat
 
 - **Non-Destructive Override**: Temporarily sets comfort temperatures without modifying your existing Tado schedules
 - **People Presence Detection**: Only applies override when people are detected at home
-- **Automatic Re-Application**: Periodically re-checks and re-applies temperature setpoints (default: every 30 minutes) to ensure Tado hasn't reverted them
+- **Automatic Re-Application**: Re-checks and re-applies temperature setpoints every 30 minutes to ensure Tado hasn't reverted them
 - **Time Window Support**: Optional start and end times to restrict when the override can be active
 - **Multi-Zone Control**: Control multiple Tado zones/rooms simultaneously
 - **Easy Enable/Disable**: Simple boolean switch to turn the override on/off
@@ -61,11 +61,12 @@ Before using this blueprint, ensure you have:
 
 | Input | Description | Default | Range |
 |-------|-------------|---------|-------|
-| **Check Interval** | How often to re-apply temperatures (minutes) | 30 | 5-120 |
 | **Comfort Temperature** | Target temperature when override is active | 21°C | 15-28°C |
 | **Use Time Window** | Enable time-based restrictions | false | true/false |
 | **Start Time** | When override can start being active | 00:00:00 | Any time |
 | **End Time** | When override should stop being active | 23:59:59 | Any time |
+
+**Note:** The blueprint re-checks and re-applies temperatures every 30 minutes. To use a different interval, fork the blueprint and modify the `time_pattern` trigger.
 
 ## Usage Examples
 
@@ -78,7 +79,6 @@ Perfect for Christmas or other holidays when you want to keep the house warm whi
 - People Presence: `group.family`
 - Tado Zones: `climate.tado_living_room`, `climate.tado_kitchen`, `climate.tado_dining_room`
 - Comfort Temperature: `21°C`
-- Check Interval: `30 minutes`
 
 **Behavior:**
 - Turn on the `input_boolean.tado_holiday_override` switch
@@ -98,7 +98,6 @@ Keep specific rooms warm during weekend mornings.
 - Use Time Window: `true`
 - Start Time: `07:00:00`
 - End Time: `11:00:00`
-- Check Interval: `15 minutes`
 
 **Behavior:**
 - Enable the override switch on Friday evening
@@ -118,7 +117,6 @@ Maintain comfort in your home office during work hours.
 - Use Time Window: `true`
 - Start Time: `09:00:00`
 - End Time: `17:00:00`
-- Check Interval: `45 minutes`
 
 ## How It Works
 
