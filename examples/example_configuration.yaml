@@ -1,0 +1,208 @@
+# Example Configuration for Tado Holiday Override Mode Blueprint
+# 
+# This file shows example configurations for different use cases.
+# Copy and adjust these examples when creating automations from the blueprint.
+
+# ============================================================================
+# Example 1: Basic Holiday Override
+# ============================================================================
+# Use case: Keep main living areas warm during holidays when family is home
+#
+# Prerequisites:
+#   - Create input_boolean.tado_holiday_override in Configuration → Helpers
+#   - Have a group.family that includes all family members
+#   - Have Tado climate entities configured
+
+alias: Tado Holiday Override - Basic
+description: Maintain comfort temperatures in main areas during holidays
+use_blueprint:
+  path: Bibbleq/tado_holiday_override.yaml
+  input:
+    override_switch: input_boolean.tado_holiday_override
+    people_presence: group.family
+    tado_zones:
+      - climate.tado_living_room
+      - climate.tado_kitchen
+      - climate.tado_dining_room
+      - climate.tado_hallway
+    comfort_temperature: 21
+    check_interval: 30
+    use_time_window: false
+
+# ============================================================================
+# Example 2: Weekend Morning Comfort
+# ============================================================================
+# Use case: Extra warmth in bedrooms and bathroom on weekend mornings
+#
+# Prerequisites:
+#   - Create input_boolean.weekend_morning_override
+#   - Have a binary_sensor.someone_home (or use person/group entity)
+
+alias: Weekend Morning Warmth
+description: Keep bedrooms warm on weekend mornings when people are home
+use_blueprint:
+  path: Bibbleq/tado_holiday_override.yaml
+  input:
+    override_switch: input_boolean.weekend_morning_override
+    people_presence: binary_sensor.someone_home
+    tado_zones:
+      - climate.tado_master_bedroom
+      - climate.tado_bedroom_2
+      - climate.tado_bathroom
+    comfort_temperature: 22
+    check_interval: 15
+    use_time_window: true
+    start_time: "07:00:00"
+    end_time: "11:00:00"
+
+# ============================================================================
+# Example 3: Work From Home Override
+# ============================================================================
+# Use case: Maintain comfortable temperature in home office during work hours
+#
+# Prerequisites:
+#   - Create input_boolean.wfh_override
+#   - Have a person entity (e.g., person.john_doe)
+
+alias: Work From Home - Office Comfort
+description: Keep home office warm during working hours
+use_blueprint:
+  path: Bibbleq/tado_holiday_override.yaml
+  input:
+    override_switch: input_boolean.wfh_override
+    people_presence: person.john_doe
+    tado_zones:
+      - climate.tado_office
+    comfort_temperature: 20.5
+    check_interval: 45
+    use_time_window: true
+    start_time: "09:00:00"
+    end_time: "17:00:00"
+
+# ============================================================================
+# Example 4: Guest Room Override
+# ============================================================================
+# Use case: Keep guest areas comfortable when guests are staying
+#
+# Prerequisites:
+#   - Create input_boolean.guest_override
+#   - Create a group.household that includes family and guests
+
+alias: Guest Comfort Mode
+description: Maintain comfort in guest areas when guests are present
+use_blueprint:
+  path: Bibbleq/tado_holiday_override.yaml
+  input:
+    override_switch: input_boolean.guest_override
+    people_presence: group.household
+    tado_zones:
+      - climate.tado_guest_bedroom
+      - climate.tado_guest_bathroom
+    comfort_temperature: 21.5
+    check_interval: 30
+    use_time_window: false
+
+# ============================================================================
+# Example 5: Evening Living Room Override
+# ============================================================================
+# Use case: Extra warmth in living room during evening hours
+#
+# Prerequisites:
+#   - Create input_boolean.evening_living_room_override
+#   - Have presence detection set up
+
+alias: Evening Living Room Comfort
+description: Warmer living room in the evening when home
+use_blueprint:
+  path: Bibbleq/tado_holiday_override.yaml
+  input:
+    override_switch: input_boolean.evening_living_room_override
+    people_presence: binary_sensor.anyone_home
+    tado_zones:
+      - climate.tado_living_room
+    comfort_temperature: 22.5
+    check_interval: 20
+    use_time_window: true
+    start_time: "18:00:00"
+    end_time: "23:00:00"
+
+# ============================================================================
+# Example 6: Multiple Zones with Fine Control
+# ============================================================================
+# Use case: Different comfort settings for different parts of the house
+#
+# Note: Create separate automations for different temperature requirements
+
+alias: Main Floor Override
+description: Comprehensive override for main floor areas
+use_blueprint:
+  path: Bibbleq/tado_holiday_override.yaml
+  input:
+    override_switch: input_boolean.main_floor_override
+    people_presence: group.family
+    tado_zones:
+      - climate.tado_living_room
+      - climate.tado_dining_room
+      - climate.tado_kitchen
+      - climate.tado_hallway
+      - climate.tado_bathroom_main
+    comfort_temperature: 21
+    check_interval: 25
+    use_time_window: false
+
+# ============================================================================
+# Additional Helper Entities Examples
+# ============================================================================
+# 
+# Add these to your configuration.yaml to create the necessary helper entities:
+
+# input_boolean:
+#   tado_holiday_override:
+#     name: Tado Holiday Override
+#     icon: mdi:home-thermometer
+#   
+#   weekend_morning_override:
+#     name: Weekend Morning Override
+#     icon: mdi:weather-sunset-up
+#   
+#   wfh_override:
+#     name: Work From Home Override
+#     icon: mdi:laptop
+#   
+#   guest_override:
+#     name: Guest Override Mode
+#     icon: mdi:account-multiple
+#   
+#   evening_living_room_override:
+#     name: Evening Living Room Override
+#     icon: mdi:sofa
+#   
+#   main_floor_override:
+#     name: Main Floor Override
+#     icon: mdi:floor-plan
+
+# ============================================================================
+# Dashboard Card Example
+# ============================================================================
+#
+# Add this card to your Lovelace dashboard for easy control:
+
+# type: entities
+# title: Tado Override Controls
+# entities:
+#   - entity: input_boolean.tado_holiday_override
+#     name: Holiday Override
+#   - entity: input_boolean.weekend_morning_override
+#     name: Weekend Mornings
+#   - entity: input_boolean.wfh_override
+#     name: Work From Home
+#   - entity: input_boolean.guest_override
+#     name: Guest Mode
+#   - type: divider
+#   - entity: climate.tado_living_room
+#     name: Living Room
+#   - entity: climate.tado_bedroom
+#     name: Bedroom
+#   - entity: climate.tado_office
+#     name: Office
+# show_header_toggle: false

@@ -1,0 +1,185 @@
+blueprint:
+  name: Tado Holiday Override Mode
+  description: >
+    Temporarily overlay Tado heating schedules without editing them.
+    When enabled via a boolean switch and people are present, this automation
+    sets selected rooms to comfort temperatures. It re-checks at a fixed interval
+    (default: 30 minutes) and re-applies the setpoints if Tado has reverted them.
+    When the override is turned off or the time window ends, normal Tado scheduling resumes.
+  domain: automation
+  source_url: https://github.com/Bibbleq/HA-Tado-Holiday_Mode
+  input:
+    override_switch:
+      name: Override Switch
+      description: Boolean input to enable/disable the Holiday Override mode
+      selector:
+        entity:
+          domain: input_boolean
+    people_presence:
+      name: People Presence Sensor
+      description: Person or group sensor to check if anyone is home
+      selector:
+        entity:
+          domain:
+            - person
+            - group
+            - binary_sensor
+            - zone
+    check_interval:
+      name: Check Interval
+      description: How often to re-check and re-apply temperature setpoints (in minutes)
+      default: 30
+      selector:
+        number:
+          min: 5
+          max: 120
+          step: 5
+          unit_of_measurement: "minutes"
+    start_time:
+      name: Start Time (Optional)
+      description: Time when the override can start being active (leave empty for always active)
+      default: "00:00:00"
+      selector:
+        time:
+    end_time:
+      name: End Time (Optional)
+      description: Time when the override should stop being active (leave empty for always active)
+      default: "23:59:59"
+      selector:
+        time:
+    tado_zones:
+      name: Tado Climate Zones
+      description: Select the Tado climate entities (rooms/zones) to control
+      selector:
+        entity:
+          domain: climate
+          multiple: true
+    comfort_temperature:
+      name: Comfort Temperature
+      description: Target temperature to set when override is active
+      default: 21
+      selector:
+        number:
+          min: 15
+          max: 28
+          step: 0.5
+          unit_of_measurement: "°C"
+    use_time_window:
+      name: Use Time Window
+      description: Enable to restrict override to specific time window (start/end times)
+      default: false
+      selector:
+        boolean:
+
+mode: restart
+max_exceeded: silent
+
+variables:
+  zones: !input tado_zones
+  target_temp: !input comfort_temperature
+  time_window_enabled: !input use_time_window
+
+trigger:
+  # Trigger when override switch changes state
+  - platform: state
+    entity_id: !input override_switch
+    id: override_changed
+
+  # Trigger when people presence changes
+  - platform: state
+    entity_id: !input people_presence
+    id: presence_changed
+
+  # Trigger periodically to re-apply settings
+  - platform: time_pattern
+    minutes: "/{{ check_interval }}"
+    id: periodic_check
+
+  # Trigger at start time (if time window is used)
+  - platform: time
+    at: !input start_time
+    id: window_start
+
+  # Trigger at end time (if time window is used)
+  - platform: time
+    at: !input end_time
+    id: window_end
+
+condition: []
+
+action:
+  - choose:
+      # When override is turned OFF or time window ends, stop enforcement
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input override_switch
+                state: "off"
+              - condition: and
+                conditions:
+                  - condition: template
+                    value_template: "{{ time_window_enabled }}"
+                  - condition: time
+                    after: !input end_time
+                    before: !input start_time
+        sequence:
+          - service: system_log
+            data:
+              message: "Tado Holiday Override: Override disabled or outside time window. Normal scheduling resumed."
+              level: info
+          - stop: "Override disabled or outside time window"
+
+      # When override is ON, people present, and within time window - apply comfort temp
+      - conditions:
+          - condition: state
+            entity_id: !input override_switch
+            state: "on"
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input people_presence
+                state: "home"
+              - condition: state
+                entity_id: !input people_presence
+                state: "on"
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ not time_window_enabled }}"
+              - condition: time
+                after: !input start_time
+                before: !input end_time
+        sequence:
+          - service: system_log
+            data:
+              message: >
+                Tado Holiday Override: Active - Setting {{ zones | length }} zone(s) to {{ target_temp }}°C
+              level: info
+
+          - repeat:
+              count: "{{ zones | length }}"
+              sequence:
+                - service: climate.set_temperature
+                  target:
+                    entity_id: "{{ zones[repeat.index - 1] }}"
+                  data:
+                    temperature: "{{ target_temp }}"
+                    hvac_mode: "heat"
+
+                - service: climate.set_preset_mode
+                  target:
+                    entity_id: "{{ zones[repeat.index - 1] }}"
+                  data:
+                    preset_mode: "home"
+                  continue_on_error: true
+
+                - delay:
+                    milliseconds: 500
+
+    # Default case: conditions not met
+    default:
+      - service: system_log
+        data:
+          message: "Tado Holiday Override: Conditions not met for applying override."
+          level: debug
