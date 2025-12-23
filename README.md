@@ -1,0 +1,1 @@
+# HA-Tado-Holiday_Mode
