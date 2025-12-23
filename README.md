@@ -55,18 +55,29 @@ Before using this blueprint, ensure you have:
 |-------|-------------|---------|
 | **Override Switch** | Boolean input to enable/disable the override | `input_boolean.tado_holiday_override` |
 | **People Presence Sensor** | Entity to check if anyone is home | `person.john_doe`, `group.family`, `binary_sensor.someone_home` |
-| **Tado Climate Zones** | Climate entities (rooms/zones) to control | `climate.tado_living_room`, `climate.tado_bedroom` |
+| **Zone Temperature Configuration** | YAML map of climate entities to their target temperatures | See examples below |
 
 ### Optional Inputs
 
 | Input | Description | Default | Range |
 |-------|-------------|---------|-------|
-| **Comfort Temperature** | Target temperature when override is active | 21°C | 15-28°C |
 | **Use Time Window** | Enable time-based restrictions | false | true/false |
 | **Start Time** | When override can start being active | 00:00:00 | Any time |
 | **End Time** | When override should stop being active | 23:59:59 | Any time |
 
 **Note:** The blueprint re-checks and re-applies temperatures every 30 minutes. To use a different interval, fork the blueprint and modify the `time_pattern` trigger.
+
+### Zone Temperature Configuration Format
+
+The zone temperature configuration uses a YAML map format where each climate entity is mapped to its desired temperature:
+
+```yaml
+zone_temperatures:
+  climate.tado_living_room: 21
+  climate.tado_bedroom: 19
+  climate.tado_kitchen: 21.5
+  climate.tado_bathroom: 22
+```
 
 ## Usage Examples
 
@@ -77,31 +88,49 @@ Perfect for Christmas or other holidays when you want to keep the house warm whi
 **Configuration:**
 - Override Switch: `input_boolean.tado_holiday_override`
 - People Presence: `group.family`
-- Tado Zones: `climate.tado_living_room`, `climate.tado_kitchen`, `climate.tado_dining_room`
-- Comfort Temperature: `21°C`
+- Zone Temperatures:
+  - Living Room: `21°C`
+  - Kitchen: `21°C`
+  - Dining Room: `21°C`
+
+```yaml
+zone_temperatures:
+  climate.tado_living_room: 21
+  climate.tado_kitchen: 21
+  climate.tado_dining_room: 21
+```
 
 **Behavior:**
 - Turn on the `input_boolean.tado_holiday_override` switch
-- When anyone in `group.family` is home, all selected zones are set to 21°C
-- Every 30 minutes, the automation re-checks and re-applies the temperature if needed
+- When anyone in `group.family` is home, all selected zones are set to their configured temperatures
+- Every 30 minutes, the automation re-checks and re-applies the temperatures if needed
 - Turn off the switch when you want to return to normal Tado schedules
 
-### Example 2: Weekend Morning Comfort
+### Example 2: Weekend Morning Comfort with Different Temperatures
 
-Keep specific rooms warm during weekend mornings.
+Keep specific rooms warm during weekend mornings, with different temperatures per room.
 
 **Configuration:**
 - Override Switch: `input_boolean.weekend_morning_override`
 - People Presence: `binary_sensor.someone_home`
-- Tado Zones: `climate.tado_bedroom`, `climate.tado_bathroom`
-- Comfort Temperature: `22°C`
+- Zone Temperatures:
+  - Master Bedroom: `22°C` (warmer for comfort)
+  - Bathroom: `23°C` (extra warm for morning routine)
+  - Bedroom 2: `20°C` (cooler)
 - Use Time Window: `true`
 - Start Time: `07:00:00`
 - End Time: `11:00:00`
 
+```yaml
+zone_temperatures:
+  climate.tado_master_bedroom: 22
+  climate.tado_bathroom: 23
+  climate.tado_bedroom_2: 20
+```
+
 **Behavior:**
 - Enable the override switch on Friday evening
-- On Saturday and Sunday between 7 AM and 11 AM, if someone is home, bedrooms stay at 22°C
+- On Saturday and Sunday between 7 AM and 11 AM, if someone is home, rooms are set to their specific temperatures
 - Outside this time window, normal Tado schedules apply
 - Every 30 minutes, temperatures are re-checked and re-applied
 
@@ -112,11 +141,16 @@ Maintain comfort in your home office during work hours.
 **Configuration:**
 - Override Switch: `input_boolean.wfh_override`
 - People Presence: `person.me`
-- Tado Zones: `climate.tado_office`
-- Comfort Temperature: `20.5°C`
+- Zone Temperature:
+  - Office: `20.5°C`
 - Use Time Window: `true`
 - Start Time: `09:00:00`
 - End Time: `17:00:00`
+
+```yaml
+zone_temperatures:
+  climate.tado_office: 20.5
+```
 
 ## How It Works
 

@@ -3,7 +3,7 @@ blueprint:
   description: >
     Temporarily overlay Tado heating schedules without editing them.
     When enabled via a boolean switch and people are present, this automation
-    sets selected rooms to comfort temperatures. It re-checks every 30 minutes
+    sets selected rooms to their configured temperatures. It re-checks every 30 minutes
     and re-applies the setpoints if Tado has reverted them.
     When the override is turned off or the time window ends, normal Tado scheduling resumes.
     Note: The 30-minute check interval is fixed. To use a different interval, fork this blueprint.
@@ -38,23 +38,16 @@ blueprint:
       default: "23:59:59"
       selector:
         time:
-    tado_zones:
-      name: Tado Climate Zones
-      description: Select the Tado climate entities (rooms/zones) to control
+    zone_temperatures:
+      name: Zone Temperature Configuration
+      description: >
+        Enter zone temperatures as YAML map. Example:
+        climate.tado_living_room: 21
+        climate.tado_bedroom: 19
+        climate.tado_bathroom: 22
+      default: {}
       selector:
-        entity:
-          domain: climate
-          multiple: true
-    comfort_temperature:
-      name: Comfort Temperature
-      description: Target temperature to set when override is active
-      default: 21
-      selector:
-        number:
-          min: 15
-          max: 28
-          step: 0.5
-          unit_of_measurement: "°C"
+        object:
     use_time_window:
       name: Use Time Window
       description: Enable to restrict override to specific time window (start/end times)
@@ -66,8 +59,8 @@ mode: restart
 max_exceeded: silent
 
 variables:
-  zones: !input tado_zones
-  target_temp: !input comfort_temperature
+  zone_temps: !input zone_temperatures
+  zones: "{{ zone_temps.keys() | list }}"
   time_window_enabled: !input use_time_window
 
 trigger:
@@ -146,22 +139,22 @@ action:
           - service: system_log
             data:
               message: >
-                Tado Holiday Override: Active - Setting {{ zones | length }} zone(s) to {{ target_temp }}°C
+                Tado Holiday Override: Active - Setting {{ zones | length }} zone(s) to their configured temperatures
               level: info
 
           - repeat:
-              count: "{{ zones | length }}"
+              for_each: "{{ zones }}"
               sequence:
                 - service: climate.set_temperature
                   target:
-                    entity_id: "{{ zones[repeat.index - 1] }}"
+                    entity_id: "{{ repeat.item }}"
                   data:
-                    temperature: "{{ target_temp }}"
+                    temperature: "{{ zone_temps[repeat.item] }}"
                     hvac_mode: "heat"
 
                 - service: climate.set_preset_mode
                   target:
-                    entity_id: "{{ zones[repeat.index - 1] }}"
+                    entity_id: "{{ repeat.item }}"
                   data:
                     preset_mode: "home"
                   continue_on_error: true

@@ -24,35 +24,34 @@ use_blueprint:
   input:
     override_switch: input_boolean.tado_holiday_override
     people_presence: group.family
-    tado_zones:
-      - climate.tado_living_room
-      - climate.tado_kitchen
-      - climate.tado_dining_room
-      - climate.tado_hallway
-    comfort_temperature: 21
+    zone_temperatures:
+      climate.tado_living_room: 21
+      climate.tado_kitchen: 21
+      climate.tado_dining_room: 21
+      climate.tado_hallway: 20
     use_time_window: false
 
 # ============================================================================
-# Example 2: Weekend Morning Comfort
+# Example 2: Weekend Morning Comfort with Different Temperatures
 # ============================================================================
 # Use case: Extra warmth in bedrooms and bathroom on weekend mornings
+#           with different temperatures per room
 #
 # Prerequisites:
 #   - Create input_boolean.weekend_morning_override
 #   - Have a binary_sensor.someone_home (or use person/group entity)
 
 alias: Weekend Morning Warmth
-description: Keep bedrooms warm on weekend mornings when people are home
+description: Keep bedrooms warm on weekend mornings with different temps per room
 use_blueprint:
   path: Bibbleq/tado_holiday_override.yaml
   input:
     override_switch: input_boolean.weekend_morning_override
     people_presence: binary_sensor.someone_home
-    tado_zones:
-      - climate.tado_master_bedroom
-      - climate.tado_bedroom_2
-      - climate.tado_bathroom
-    comfort_temperature: 22
+    zone_temperatures:
+      climate.tado_master_bedroom: 22
+      climate.tado_bedroom_2: 20
+      climate.tado_bathroom: 23
     use_time_window: true
     start_time: "07:00:00"
     end_time: "11:00:00"
@@ -73,9 +72,8 @@ use_blueprint:
   input:
     override_switch: input_boolean.wfh_override
     people_presence: person.john_doe
-    tado_zones:
-      - climate.tado_office
-    comfort_temperature: 20.5
+    zone_temperatures:
+      climate.tado_office: 20.5
     use_time_window: true
     start_time: "09:00:00"
     end_time: "17:00:00"
@@ -96,10 +94,9 @@ use_blueprint:
   input:
     override_switch: input_boolean.guest_override
     people_presence: group.household
-    tado_zones:
-      - climate.tado_guest_bedroom
-      - climate.tado_guest_bathroom
-    comfort_temperature: 21.5
+    zone_temperatures:
+      climate.tado_guest_bedroom: 21.5
+      climate.tado_guest_bathroom: 22
     use_time_window: false
 
 # ============================================================================
@@ -118,34 +115,31 @@ use_blueprint:
   input:
     override_switch: input_boolean.evening_living_room_override
     people_presence: binary_sensor.anyone_home
-    tado_zones:
-      - climate.tado_living_room
-    comfort_temperature: 22.5
+    zone_temperatures:
+      climate.tado_living_room: 22.5
     use_time_window: true
     start_time: "18:00:00"
     end_time: "23:00:00"
 
 # ============================================================================
-# Example 6: Multiple Zones with Fine Control
+# Example 6: Multiple Zones with Different Temperatures
 # ============================================================================
 # Use case: Different comfort settings for different parts of the house
-#
-# Note: Create separate automations for different temperature requirements
+#           Now you can set different temperatures per zone!
 
 alias: Main Floor Override
-description: Comprehensive override for main floor areas
+description: Comprehensive override for main floor with different temps per area
 use_blueprint:
   path: Bibbleq/tado_holiday_override.yaml
   input:
     override_switch: input_boolean.main_floor_override
     people_presence: group.family
-    tado_zones:
-      - climate.tado_living_room
-      - climate.tado_dining_room
-      - climate.tado_kitchen
-      - climate.tado_hallway
-      - climate.tado_bathroom_main
-    comfort_temperature: 21
+    zone_temperatures:
+      climate.tado_living_room: 21
+      climate.tado_dining_room: 21
+      climate.tado_kitchen: 20
+      climate.tado_hallway: 19
+      climate.tado_bathroom_main: 22
     use_time_window: false
 
 # ============================================================================

@@ -11,8 +11,7 @@ This document explains the technical implementation and logic flow of the Tado H
 │  Inputs:                                                          │
 │  • Override Switch (input_boolean)                               │
 │  • People Presence Sensor (person/group/binary_sensor)           │
-│  • Tado Climate Zones (climate entities)                         │
-│  • Comfort Temperature (°C)                                       │
+│  • Zone Temperature Configuration (YAML map)                     │
 │  • Optional: Time Window (start/end times)                        │
 │  • Note: 30-minute check interval is fixed in the blueprint      │
 └─────────────────────────────────────────────────────────────────┘
@@ -124,9 +123,9 @@ IF override_switch = ON AND
    people_presence = (home OR on) AND
    (NOT time_window_enabled OR current_time IN [start, end]):
   THEN:
-    - Log: "Active - Setting N zones to X°C"
-    - FOR EACH zone in tado_zones:
-        - Set temperature to comfort_temperature
+    - Log: "Active - Setting N zones to their configured temperatures"
+    - FOR EACH zone in zone_temperatures:
+        - Set temperature to zone_temperatures[zone]
         - Set HVAC mode to "heat"
         - Try to set preset_mode to "home" (ignore errors)
         - Wait 500ms before next zone
@@ -165,12 +164,12 @@ max_exceeded: silent
 ## Variables
 
 ```yaml
-zones: !input tado_zones           # List of climate entities
-target_temp: !input comfort_temperature  # Target temperature (°C)
+zone_temps: !input zone_temperatures  # Map of climate entities to temperatures
+zones: zone_temps.keys() | list        # List of climate entities extracted from map
 time_window_enabled: !input use_time_window  # Boolean flag
 ```
 
-These variables are set once at automation start and used throughout the action sequence.
+These variables are set once at automation start and used throughout the action sequence. The zones list is dynamically generated from the keys in the zone_temperatures map.
 
 ## Time Pattern Trigger Details
 
@@ -191,22 +190,23 @@ This creates a repeating trigger that fires every 30 minutes:
 ```yaml
 service: climate.set_temperature
 target:
-  entity_id: "{{ zones[repeat.index - 1] }}"
+  entity_id: "{{ repeat.item }}"
 data:
-  temperature: "{{ target_temp }}"
+  temperature: "{{ zone_temps[repeat.item] }}"
   hvac_mode: "heat"
 ```
 
-- Sets target temperature
+- Sets target temperature from the zone_temperatures map
+- Each zone gets its configured temperature
 - Ensures HVAC mode is "heat"
-- Applied to each zone individually
+- Applied to each zone individually using for_each loop
 
 ### Set Preset Mode
 
 ```yaml
 service: climate.set_preset_mode
 target:
-  entity_id: "{{ zones[repeat.index - 1] }}"
+  entity_id: "{{ repeat.item }}"
 data:
   preset_mode: "home"
 continue_on_error: true

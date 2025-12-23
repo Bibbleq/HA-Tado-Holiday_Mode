@@ -39,11 +39,12 @@ Get up and running with Tado Holiday Override Mode in 5 minutes!
 ```yaml
 Override Switch: input_boolean.tado_holiday_override
 People Presence Sensor: person.your_name (or group.family)
-Tado Climate Zones: 
-  - climate.tado_living_room
-  - climate.tado_bedroom
-Comfort Temperature: 21
+Zone Temperature Configuration:
+  climate.tado_living_room: 21
+  climate.tado_bedroom: 19
 ```
+
+**Note:** You can set different temperatures for each zone. Enter them as a YAML map where each climate entity is followed by its desired temperature.
 
 5. Click **Save** and give it a name like "Holiday Override"
 
@@ -69,25 +70,31 @@ Comfort Temperature: 21
 ### Holiday Mode (Always Active)
 ```yaml
 Use Time Window: false
-Comfort Temperature: 21°C
+Zone Temperatures:
+  climate.tado_living_room: 21
+  climate.tado_bedroom: 20
+  climate.tado_kitchen: 21
 ```
 Turn on when guests arrive, turn off when they leave.
 
-### Weekend Mornings Only
+### Weekend Mornings with Different Room Temperatures
 ```yaml
 Use Time Window: true
 Start Time: 07:00:00
 End Time: 11:00:00
-Comfort Temperature: 22°C
+Zone Temperatures:
+  climate.tado_bedroom: 22
+  climate.tado_bathroom: 23
 ```
-Turn on Friday evening, leave it on all weekend!
+Turn on Friday evening, leave it on all weekend! Bathroom warmer for morning routine.
 
 ### Work From Home
 ```yaml
 Use Time Window: true
 Start Time: 09:00:00
 End Time: 17:00:00
-Comfort Temperature: 20.5°C
+Zone Temperatures:
+  climate.tado_office: 20.5
 ```
 Enable on WFH days, disable on office days.
 
