@@ -60,7 +60,7 @@ max_exceeded: silent
 
 variables:
   zone_temps: !input zone_temperatures
-  zones: "{{ zone_temps.keys() | list }}"
+  zones: "{{ (zone_temps or {}).keys() | list }}"
   time_window_enabled: !input use_time_window
 
 trigger:
@@ -135,6 +135,8 @@ action:
               - condition: time
                 after: !input start_time
                 before: !input end_time
+          - condition: template
+            value_template: "{{ zones | length > 0 }}"
         sequence:
           - service: system_log
             data:
@@ -149,7 +151,7 @@ action:
                   target:
                     entity_id: "{{ repeat.item }}"
                   data:
-                    temperature: "{{ zone_temps[repeat.item] }}"
+                    temperature: "{{ zone_temps.get(repeat.item, 21) }}"
                     hvac_mode: "heat"
 
                 - service: climate.set_preset_mode
