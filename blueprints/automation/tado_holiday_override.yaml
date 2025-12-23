@@ -26,8 +26,10 @@ blueprint:
             - binary_sensor
             - zone
     check_interval:
-      name: Check Interval
-      description: How often to re-check and re-apply temperature setpoints (in minutes)
+      name: Check Interval (informational)
+      description: >
+        Automation runs every 30 minutes to re-check and re-apply temperatures.
+        To use a different interval, fork this blueprint and modify the time_pattern trigger.
       default: 30
       selector:
         number:
@@ -35,6 +37,7 @@ blueprint:
           max: 120
           step: 5
           unit_of_measurement: "minutes"
+          mode: box
     start_time:
       name: Start Time (Optional)
       description: Time when the override can start being active (leave empty for always active)
@@ -90,9 +93,10 @@ trigger:
     entity_id: !input people_presence
     id: presence_changed
 
-  # Trigger periodically to re-apply settings
+  # Trigger every 30 minutes to re-apply settings
+  # Note: To change this interval, fork the blueprint and modify this trigger
   - platform: time_pattern
-    minutes: "/{{ check_interval }}"
+    minutes: "/30"
     id: periodic_check
 
   # Trigger at start time (if time window is used)
